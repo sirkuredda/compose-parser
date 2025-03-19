@@ -1,2 +1,2 @@
-mod docker_compose;
+pub mod docker_compose;
 mod top_level_element;
