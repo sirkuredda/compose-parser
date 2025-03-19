@@ -1,0 +1,313 @@
+version: '3'
+services:
+  web:
+    annotations:
+      com.example.foo: bar
+    attach: false
+    blkio_config:
+      weight: 300
+      weight_device:
+        - path: /dev/sda
+          weight: 400
+      device_read_bps:
+        - path: /dev/sdb
+          rate: '12mb'
+      device_read_iops:
+        - path: /dev/sdb
+          rate: 120
+      device_write_bps:
+        - path: /dev/sdb
+          rate: '1024k'
+      device_write_iops:
+        - path: /dev/sdb
+          rate: 30
+    cpu_count: 1
+    cpu_percent: 35
+    cpu_shares: 512
+    cpu_period: 5h34m56s
+    cpu_quota: 50000
+    cpu_rt_runtime: '400ms'
+    cpu_rt_period: '1400us'
+    cpus: 0.5
+    cpuset: "2,3"
+    cap_add:
+      - ALL
+    cap_drop:
+      - NET_ADMIN
+      - SYS_ADMIN
+    cgroup: host
+    cgroup_parent: m-executor-abcd
+    image: odoo:12.0
+    depends_on:
+      - db
+    ports:
+      - "8079:8069"
+      - "8082:8072"
+    volumes:
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+      - ./addons_2:/mnt/extra-addons-2
+    environment:
+      RACK_ENV: development
+      SHOW: "true"
+    command: odoo -d odoo -i base,sale,mrp
+    configs:
+      - my_config
+      - my_other_config
+    container_name: web-test
+    credential_spec:
+      file: my-credential-spec.json
+    dns: 8.8.8.8
+    dns_search: example.com
+    entrypoint:
+      - php
+      - -d
+      - zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20100525/xdebug.so
+      - -d
+      - memory_limit=-1
+      - vendor/bin/phpunit
+    env_file:
+      - path: ./default.env
+        required: true # default
+      - path: ./override.env
+        required: false
+    group_add:
+      - mail
+    hostname: test
+    ipc: "shareable"
+    labels:
+      - "com.example.description=Accounting webapp"
+      - "com.example.department=Finance"
+      - "com.example.label-with-empty-value"
+    label_file:
+      - ./app.labels
+      - ./additional.labels
+    links:
+      - db
+      - db:database
+      - redis
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp://192.168.0.42:123"
+    restart: on-failure:4
+    runtime: runc
+    scale: 8
+    secrets:
+        - server-certificate
+    security_opt: 
+      - label=user:USER
+      - label=role:ROLE
+    shm_size: 300m
+    stdin_open: true
+    stop_grace_period: 1m30s
+    stop_signal: SIGTERM
+    storage_opt:
+      size: '1G'
+    sysctls:
+      net.core.somaxconn: 1024
+      net.ipv4.tcp_syncookies: 0
+    ulimits: 
+      nproc: 1024
+
+  db:
+    annotations:
+      - com.example.foo=bar
+    cgroup: private
+    image: postgres:12
+    ports:
+      - "5442:5432"
+    cpuset: "0-3"
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_started
+    environment:
+      - POSTGRES_DB=odoo
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    configs:
+      - source: my_config
+        target: /redis_config
+        uid: "103"
+        gid: "103"
+        mode: 0440
+    credential_spec:
+      registry: my-credential-spec
+    device_cgroup_rules:
+      - 'c 1:3 mr'
+      - 'a 7:* rmw'
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/sda:/dev/xvda:rwm"
+    dns:
+      - 8.8.8.8
+      - 9.9.9.9
+    dns_opt:
+      - use-vc
+      - no-tld-query
+    dns_search:
+      - dc1.example.com
+      - dc2.example.com
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+    entrypoint: /code/entrypoint.sh
+    env_file:
+      - ./a.env
+      - ./b.env
+    expose:
+      - "3000"
+      - "8000"
+      - "8080-8085/tcp"
+    extends:
+      file: common.yml
+      service: webapp
+    external_links:
+      - redis
+      - database:mysql
+      - database:postgresql
+    extra_hosts:
+      - "somehost=162.242.195.82"
+      - "otherhost=50.31.209.229"
+      - "myhostv6=::1"
+    gpu:
+      - driver: 3dfx
+        count: 2
+    ipc: "service:[service name]"
+    labels:
+      com.example.description: "Accounting webapp"
+      com.example.department: "Finance"
+      com.example.label-with-empty-value: ""
+    label_file: ./app.labels
+    mem_swappiness: 60
+    memswap_limit: 300m
+    network_mode: "service:[service name]"
+    networks:
+      - some-network
+      - other-network
+    oom_kill_disable: true
+    oom_score_adj: -400
+    pid: 5
+    pid_limit: 65
+    post_start:
+      - command: ./do_something_on_startup.sh
+        user: root
+        privileged: true
+        environment:
+          - FOO=BAR
+    pre_stop:
+      - command: ./do_something_on_startup.sh
+        user: root
+        privileged: true
+        environment:
+          - FOO=BAR
+    privileged: true
+    profiles: ["frontend"]
+    pull_policy: daily
+    read_only: true
+    restart: always
+    secrets:
+      - source: server-certificate
+        target: server.cert
+        uid: "103"
+        gid: "103"
+        mode: "0o440"
+    sysctls:
+      - net.core.somaxconn=1024
+      - net.ipv4.tcp_syncookies=0
+    tmpfs:
+      - /data:mode=755,uid=1009,gid=1009
+      - /run
+    ulimits:
+      nofile:
+        soft: 20000
+        hard: 40000
+    user: root
+    userns_mode: "host"
+    uts: "host"
+    volumes_from:
+      - service_name
+      - service_name:ro
+    working_dir: /home/test  
+
+
+volumes:
+  db-data:
+    driver: foobar
+    driver_opts:
+      type: "nfs"
+      o: "addr=10.40.0.199,nolock,soft,rw"
+      device: ":/docker/example"
+    external: true
+    labels:
+      com.example.description: "Database volume"
+      com.example.department: "IT/Ops"
+      com.example.label-with-empty-value: ""
+    name: db-data
+  web-data:
+    labels:
+      - "com.example.description=Web volume"
+      - "com.example.department=IT/Ops"
+      - "com.example.label-with-empty-value"
+
+networks:
+  frontend:
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+    internal: true
+    labels:
+      - "com.example.description=Financial transaction network"
+      - "com.example.department=Finance"
+      - "com.example.label-with-empty-value"
+  backend:
+    driver: bridge
+    attachable: true
+    labels:
+      com.example.description: "Financial transaction network"
+      com.example.department: "Finance"
+      com.example.label-with-empty-value: ""
+  ip6net:
+    enable_ipv4: false
+    enable_ipv6: true
+  ipam_test:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          ip_range: 172.28.5.0/24
+          gateway: 172.28.0.1
+          aux_addresses:
+            host1: 172.28.1.5
+            host2: 172.28.1.6
+            host3: 172.28.1.7
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
+      options:
+        foo: bar
+        baz: "0"
+    name: my-app-name
+
+# Example 1: File Config
+configs:
+  http_config:
+    file: ./http.conf
+  http_config2:
+    external: true
+    name: external test
+  app_config:
+    content: |
+      debug=${DEBUG}
+      ...
+  app_config2:
+    environment: DEBUG
+
+secrets:
+  server-certificate:
+    file: ./server.cert
+  token:
+    environment: "OAUTH_TOKEN"
