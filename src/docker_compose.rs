@@ -1,24 +1,24 @@
-use std::path::Path;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
+use std::path::Path;
 
-use crate::top_level_element::Secrets;
-use crate::top_level_element::Network;
 use crate::top_level_element::Config;
-use crate::top_level_element::Volume;
+use crate::top_level_element::Network;
+use crate::top_level_element::Secrets;
 use crate::top_level_element::Service;
+use crate::top_level_element::Volume;
 
 #[derive(Debug, Deserialize)]
 #[allow(dead_code)]
 pub struct DockerCompose {
     pub version: String,
     pub services: HashMap<String, Service>,
-    pub networks: HashMap<String, Network>,
-    pub volumes: HashMap<String, Volume>,
-    pub configs: HashMap<String, Config>,
-    pub secrets: HashMap<String, Secrets>,
+    pub networks: Option<HashMap<String, Network>>,
+    pub volumes: Option<HashMap<String, Volume>>,
+    pub configs: Option<HashMap<String, Config>>,
+    pub secrets: Option<HashMap<String, Secrets>>,
 }
 
 #[allow(dead_code)]
@@ -34,8 +34,8 @@ impl DockerCompose {
 
 #[cfg(test)]
 mod tests {
-    use std::env::current_dir;
     use super::*;
+    use std::env::current_dir;
     use std::fs::File;
     use std::io::Read;
 
@@ -57,5 +57,4 @@ mod tests {
 
         println!("{:#?}", compose);
     }
-
 }
