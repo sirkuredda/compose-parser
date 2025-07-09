@@ -415,6 +415,7 @@ pub enum SecretsSyntax{
 fn default_true() -> bool { true }
 
 impl Service {
+    #[allow(dead_code)]
     fn try_get_ports(&self) -> String {
         let ports = self.ports.as_ref().unwrap();
 
