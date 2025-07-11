@@ -1,4 +1,4 @@
-## Rust Compose Reader
+## Compose Parser
 
 A robust and easy-to-use Rust library for parsing docker-compose.yml files.
 
