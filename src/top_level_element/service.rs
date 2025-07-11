@@ -2,7 +2,7 @@ use serde::{Deserialize, Deserializer, de};
 use std::collections::HashMap;
 use std::str::FromStr;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct Service {
     pub image: String,
@@ -98,7 +98,7 @@ pub struct Service {
     pub working_dir: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct BlkioConfig {
     weight: Option<u16>,
@@ -109,21 +109,21 @@ pub struct BlkioConfig {
     device_write_iops: Option<Vec<DeviceLimit>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct DeviceWeight{
     path: String,
     weight: u16
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct DeviceLimit {
     path: String,
     rate: String //todo: needs to a number
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub enum CpuSet{
     Range(u32, u32),
@@ -153,7 +153,7 @@ impl<'de> Deserialize<'de> for CpuSet{
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[allow(dead_code)]
 pub enum Cgroup {
@@ -161,7 +161,7 @@ pub enum Cgroup {
     Private
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct ServiceConfig {
     source: String,
@@ -171,7 +171,7 @@ pub struct ServiceConfig {
     mode: String
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 #[allow(dead_code)]
 pub enum ServiceConfigVariant {
@@ -179,7 +179,7 @@ pub enum ServiceConfigVariant {
     ComplexConfig(Vec<ServiceConfig>)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 #[allow(dead_code)]
 pub enum CredentialSpec {
@@ -188,7 +188,7 @@ pub enum CredentialSpec {
     Config { config: String },
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[allow(dead_code)]
 pub enum DependsOnCondition{
@@ -197,7 +197,7 @@ pub enum DependsOnCondition{
     ServiceCompletedSuccessfully
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct DependsLongSyntax{
     #[serde(default)]
@@ -207,7 +207,7 @@ pub struct DependsLongSyntax{
     required: bool
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 #[allow(dead_code)]
 pub enum DependsOn {
@@ -215,7 +215,7 @@ pub enum DependsOn {
     LongSyntax(HashMap<String, DependsLongSyntax>)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 #[allow(dead_code)]
 pub enum SingleOrList {
@@ -223,7 +223,7 @@ pub enum SingleOrList {
     List(Vec<String>)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 #[allow(dead_code)]
 pub enum HashmapOrList{
@@ -231,7 +231,7 @@ pub enum HashmapOrList{
     List(Vec<String>)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 #[allow(dead_code)]
 pub enum SysctlsConfig{
@@ -239,7 +239,7 @@ pub enum SysctlsConfig{
     List(Vec<String>)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct ComplexEnv {
     path: String,
@@ -248,7 +248,7 @@ pub struct ComplexEnv {
     format: Option<String>
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 #[allow(dead_code)]
 pub enum EnvService {
@@ -257,21 +257,21 @@ pub enum EnvService {
     Complex(Vec<ComplexEnv>)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct ExtendsService {
     file: Option<String>,
     service: String
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct GpuData{
     driver: String,
     count: u16
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct LoggingService{
     driver: String,
@@ -287,7 +287,7 @@ pub struct PostStartService {
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 #[serde(untagged)]
 pub enum UlimitsOptions{
@@ -299,14 +299,14 @@ pub enum UlimitsOptions{
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct UlimitsNofile {
     soft: u64,
     hard: u64
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct PostStart {
     command: String,
@@ -316,7 +316,7 @@ pub struct PostStart {
 }
 
 //todo: implement the every_<duration>
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 #[serde(rename_all = "snake_case")]
 pub enum PullPolicy{
@@ -328,7 +328,7 @@ pub enum PullPolicy{
     Weekly,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum RestartPolicy{
     No,
     Always,
@@ -393,7 +393,7 @@ impl<'de> Deserialize<'de> for RestartPolicy {
 }
 
 //todo: improve field deserialization
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct SecretConfig{
     source: String,
@@ -403,7 +403,7 @@ pub struct SecretConfig{
     mode: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 #[allow(dead_code)]
 pub enum SecretsSyntax{

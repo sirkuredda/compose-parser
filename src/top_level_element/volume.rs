@@ -2,7 +2,7 @@ use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
 use super::service::deserialize_key_value_or_map;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct Volume {
     pub driver: Option<String>,

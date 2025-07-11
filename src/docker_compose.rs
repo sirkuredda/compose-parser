@@ -10,7 +10,7 @@ use crate::top_level_element::Secrets;
 use crate::top_level_element::Service;
 use crate::top_level_element::Volume;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct DockerCompose {
     pub version: String,

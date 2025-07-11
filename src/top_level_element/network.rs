@@ -2,7 +2,7 @@ use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
 use super::service::deserialize_key_value_or_map;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct Network {
     pub driver: Option<String>,
@@ -18,7 +18,7 @@ pub struct Network {
     pub name: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct Ipam {
     pub driver: Option<String>,
@@ -26,7 +26,7 @@ pub struct Ipam {
     pub options: Option<HashMap<String, serde_yml::Value>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct IpamConfig {
     pub subnet: Option<String>,
