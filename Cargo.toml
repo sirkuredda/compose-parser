@@ -2,6 +2,8 @@
 name = "docker-compose-reader"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+description = "A parser for Docker Compose files."
 
 [dependencies]
 serde_yml = "0.0.12"
