@@ -23,12 +23,12 @@ pub struct DockerCompose {
 
 #[allow(dead_code)]
 impl DockerCompose {
-    pub fn try_load_compose(path: impl AsRef<Path>) -> Self {
-        let mut file = File::open(path).unwrap();
+    pub fn try_load_compose(path: impl AsRef<Path>) -> Result<Self, Box<dyn std::error::Error>> {
+        let mut file = File::open(path)?;
         let mut contents = String::new();
         let _ = file.read_to_string(&mut contents);
 
-        serde_yml::from_str(contents.as_str()).unwrap()
+        serde_yml::from_str(contents.as_str()).map_err(|e| {e.into()})
     }
 }
 
